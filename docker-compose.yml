@@ -1,0 +1,36 @@
+version: "3"
+services:
+  taxi_server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    # container_name: taxi_szerver
+    ports:
+      - "80:3000"
+    volumes:
+      - "./server/src:/server/src"
+    environment:
+      - "DB_CONNECTION=mongodb://admin:password@taxi_database:27017"
+    networks:
+      - taxi_net
+    depends_on:
+      - taxi_database
+
+  taxi_database:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    # container_name: taxi_database
+    volumes:
+      - "./db/backup:/data/db"
+    environment:
+      # A környzeti változókat listaként (lásd 13.sor) és
+      # kulcs-érték párokként is fel lehet sorolni (lásd alább)
+      MONGO_INITDB_ROOT_USERNAME: "admin"
+      MONGO_INITDB_ROOT_PASSWORD: "password"
+    networks:
+      - taxi_net
+
+networks:
+  taxi_net:
+    driver: bridge
